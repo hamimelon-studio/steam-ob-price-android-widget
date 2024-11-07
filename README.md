@@ -10,4 +10,4 @@
 
 #### Release 0.1 alpha
 
-[download apk](https://raw.githubusercontent.com/hongwei-bai/SteamPriceObWidget/main/release/steamob-debug.apk)
+[download apk](https://github.com/hongwei-bai/SteamPriceObWidget/releases/tag/v0.1)
