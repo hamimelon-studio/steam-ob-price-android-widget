@@ -4,7 +4,9 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -22,14 +24,38 @@ class AddWidgetInputActivity : AppCompatActivity() {
     }
 
     private fun showAppIdDialog(appWidgetId: Int) {
-        val input = EditText(this)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        // App ID input field
+        val appIdInput = EditText(this).apply {
+            hint = "Enter App ID"
+        }
+
+        // Price threshold input field
+        val priceThresholdInput = EditText(this).apply {
+            hint = "Enter Price Threshold"
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+
+        layout.addView(appIdInput)
+        layout.addView(priceThresholdInput)
+
         AlertDialog.Builder(this)
-            .setTitle("Enter App ID")
-            .setView(input)
+            .setTitle("Enter App ID and Price Threshold")
+            .setView(layout)
             .setPositiveButton("OK") { _, _ ->
-                val appId = input.text.toString()
-                // Save app ID or pass it back to widget
+                val appId = appIdInput.text.toString()
+                val priceThreshold = priceThresholdInput.text.toString().toFloatOrNull()
+                    ?: 0f // Default to 0 if invalid input
+
+                // Save app ID and price threshold or pass them back to the widget
                 saveAppId(appWidgetId, appId)
+                savePriceThreshold(
+                    appWidgetId,
+                    priceThreshold
+                ) // New function to save price threshold
                 updateWidget(appWidgetId)
                 finish() // Close activity after input
             }
@@ -59,7 +85,14 @@ class AddWidgetInputActivity : AppCompatActivity() {
     private fun saveAppId(appWidgetId: Int, appId: String) {
         // Save app ID to SharedPreferences or handle as needed
         val prefs = getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val key = "widget_id_$appWidgetId"
+        val key = "appid_$appWidgetId"
         prefs.edit().putString(key, appId).apply()
+    }
+
+    private fun savePriceThreshold(appWidgetId: Int, priceThreshold: Float) {
+        val sharedPreferences = getSharedPreferences("widget_prefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putFloat("threshold_$appWidgetId", priceThreshold)
+        editor.apply()
     }
 }

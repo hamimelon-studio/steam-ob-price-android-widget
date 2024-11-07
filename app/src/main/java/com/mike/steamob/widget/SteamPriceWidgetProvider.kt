@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.mike.steamob.AddWidgetInputActivity
 import com.mike.steamob.R
+import com.mike.steamob.alarm.NotificationLauncher
 import com.mike.steamob.data.SteamPriceRepository
 import com.mike.steamob.ui.DiscountLevel
 import com.mike.steamob.ui.UiState
@@ -67,13 +68,39 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
                 setupConfigIntent(context, appWidgetId)
             }
             appWidgetManager.updateAppWidget(appWidgetId, views)
+
+            uiState?.let { triggerAlarm(context, appWidgetId, uiState) }
         }
+    }
+
+    private fun triggerAlarm(context: Context, appWidgetId: Int, uiState: UiState) {
+        val priceThreshold = getPriceThreshold(context, appWidgetId)
+        val finalPrice = extractPrice(uiState.price)
+        if (finalPrice <= priceThreshold) {
+            val title = "\uD83D\uDD25 [SteamOb] ${uiState.name}: Big Discount Just for You!"
+            val message =
+                "\"The price of ${uiState.name} has dropped to just ${uiState.price}! Don’t miss out on this limited-time offer – grab it before it’s gone! \uD83D\uDCA5\""
+            NotificationLauncher.post(context, title, message)
+        }
+        uiState.price
+    }
+
+    private fun extractPrice(priceString: String): Float {
+        val priceWithoutSymbol = priceString.replace(Regex("^[^0-9.-]+"), "").trim()
+
+        // Convert the cleaned string to a float
+        return priceWithoutSymbol.toFloatOrNull() ?: 0f // Return 0f if conversion fails
     }
 
     private fun getAppId(context: Context, appWidgetId: Int): String? {
         val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val key = "widget_id_$appWidgetId"
+        val key = "appid_$appWidgetId"
         return prefs.getString(key, null)
+    }
+
+    private fun getPriceThreshold(context: Context, appWidgetId: Int): Float {
+        val sharedPreferences = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getFloat("threshold_$appWidgetId", 0f)
     }
 
     private fun RemoteViews.setupConfigIntent(context: Context, appWidgetId: Int) {
