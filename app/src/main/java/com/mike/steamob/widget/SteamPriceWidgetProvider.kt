@@ -59,7 +59,6 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
             with(views) {
                 showAlertWhen(uiState == null)
-                hideFinalPriceIfNoDiscount(uiState?.discountLevel)
                 showRedBackgroundOnMajorDiscount(uiState?.discountLevel)
                 uiState?.let {
                     displayInfo(it)
@@ -135,8 +134,8 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.time, "on ${uiState.timeUpdated}")
         setTextViewText(R.id.name, uiState.name)
         setTextViewText(R.id.discount, uiState.discount)
-        setTextViewText(R.id.initialPrice, uiState.initialPrice)
-        setTextViewText(R.id.price, uiState.price)
+        val priceDisplay = "${uiState.price} (${uiState.initialPrice})"
+        setTextViewText(R.id.price, priceDisplay)
     }
 
     private fun RemoteViews.showRedBackgroundOnMajorDiscount(discountLevel: DiscountLevel?) {
@@ -152,14 +151,6 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
                 "setBackgroundResource",
                 R.drawable.steam_bg
             )
-        }
-    }
-
-    private fun RemoteViews.hideFinalPriceIfNoDiscount(discountLevel: DiscountLevel?) {
-        if (discountLevel == DiscountLevel.None) {
-            setViewVisibility(R.id.price, View.GONE)
-        } else {
-            setViewVisibility(R.id.price, View.VISIBLE)
         }
     }
 

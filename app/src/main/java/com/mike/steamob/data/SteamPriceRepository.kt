@@ -5,6 +5,7 @@ import com.mike.steamob.ui.UiState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class SteamPriceRepository {
     suspend fun fetchData(appId: String): UiState? {
@@ -12,16 +13,29 @@ class SteamPriceRepository {
         val data1 = response.entries.firstOrNull()?.value
         if (data1 != null) {
             val data = data1.data
+            val adjustDiscount = adjustDiscountValue(
+                data.price_overview.discountPercentage,
+                data.price_overview.initial,
+                data.price_overview.final
+            )
             return UiState(
                 timeUpdated = getCurrentTimeStampString(),
                 name = data.name,
-                discount = "${data.price_overview.discountPercentage}% OFF",
-                discountLevel = mapDiscountLevel(data.price_overview.discountPercentage),
+                discount = "$adjustDiscount% OFF",
+                discountLevel = mapDiscountLevel(adjustDiscount),
                 initialPrice = formatAud(data.price_overview.initial),
                 price = data.price_overview.final_formatted
             )
         }
         return null
+    }
+
+    private fun adjustDiscountValue(discountGiven: Int, initialPrice: Long, finalPrice: Long): Int {
+        if (discountGiven > 0) {
+            return discountGiven
+        }
+        val adjusted = (initialPrice - finalPrice) * 1.0f / initialPrice * 100.0f
+        return adjusted.roundToInt()
     }
 
     private fun getCurrentTimeStampString(): String {

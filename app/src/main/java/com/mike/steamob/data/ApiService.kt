@@ -5,7 +5,7 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("api/appdetails/")
-    suspend fun getAppDetails(@Query("appids") appId: String): Map<String, SteamPrice>
+    suspend fun getAppDetails(@Query("appids") appId: String, @Query("cc") cc: String = "au"): Map<String, SteamPrice>
 }
 
 // Create the API service

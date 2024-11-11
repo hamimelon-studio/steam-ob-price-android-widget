@@ -14,7 +14,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="@dimen/widget_text_size" />
 
     <ImageButton
         android:id="@+id/refresh_button"
@@ -50,8 +50,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/time"
         android:layout_alignParentStart="true"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="@dimen/widget_text_size" />
 
     <TextView
         android:id="@+id/discount"
@@ -60,23 +62,14 @@
         android:layout_below="@id/name"
         android:layout_alignParentStart="true"
         android:textColor="@color/white"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/initialPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/discount"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="@dimen/widget_text_size" />
 
     <TextView
         android:id="@+id/price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/initialPrice"
+        android:layout_below="@id/discount"
         android:layout_alignParentStart="true"
         android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="@dimen/widget_text_size" />
 </RelativeLayout>
