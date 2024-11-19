@@ -65,11 +65,17 @@ dependencies {
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
     implementation(libs.material)
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
+
+    // di
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     // network
     implementation(libs.retrofit.v290)

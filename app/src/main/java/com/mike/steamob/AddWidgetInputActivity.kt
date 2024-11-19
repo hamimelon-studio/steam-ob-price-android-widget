@@ -10,9 +10,16 @@ import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.mike.steamob.data.SteamPriceRepository
+import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.widget.SteamPriceWidgetProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.get
 
 class AddWidgetInputActivity : AppCompatActivity() {
+    private val repository: SteamPriceRepository = get(SteamPriceRepository::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +58,7 @@ class AddWidgetInputActivity : AppCompatActivity() {
                     ?: 0f // Default to 0 if invalid input
 
                 // Save app ID and price threshold or pass them back to the widget
-                saveAppId(appWidgetId, appId)
-                savePriceThreshold(
-                    appWidgetId,
-                    priceThreshold
-                ) // New function to save price threshold
+                save(appWidgetId, appId, priceThreshold)
                 updateWidget(appWidgetId)
                 finish() // Close activity after input
             }
@@ -80,6 +83,21 @@ class AddWidgetInputActivity : AppCompatActivity() {
 
         // Alternatively, you could call your specific update method:
         SteamPriceWidgetProvider().onUpdate(this, appWidgetManager, intArrayOf(appWidgetId))
+    }
+
+    private fun save(appWidgetId: Int, appId: String, priceThreshold: Float) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val entity = SteamObEntity(
+                widgetId = appWidgetId,
+                appId = appId,
+                alarmThreshold = if (priceThreshold == 0f) {
+                    Float.MAX_VALUE
+                } else priceThreshold
+            )
+            repository.fetchApp(entity)?.let {
+                repository.update(it)
+            }
+        }
     }
 
     private fun saveAppId(appWidgetId: Int, appId: String) {

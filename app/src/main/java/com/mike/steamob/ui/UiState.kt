@@ -1,14 +1,7 @@
 package com.mike.steamob.ui
 
-data class UiState(
-    val timeUpdated: String,
-    val name: String,
-    val discount: String,
-    val discountLevel: DiscountLevel,
-    val initialPrice: String,
-    val price: String
-)
+import com.mike.steamob.data.room.SteamObEntity
 
-enum class DiscountLevel {
-    None, Major, Minor
-}
+data class UiState(
+    val list: List<SteamObEntity> = emptyList()
+)

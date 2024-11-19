@@ -7,19 +7,23 @@ import android.content.Context
 import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
+import androidx.compose.ui.tooling.data.EmptyGroup.data
 import com.mike.steamob.AddWidgetInputActivity
 import com.mike.steamob.R
 import com.mike.steamob.alarm.NotificationLauncher
 import com.mike.steamob.data.SteamPriceRepository
-import com.mike.steamob.ui.DiscountLevel
-import com.mike.steamob.ui.UiState
+import com.mike.steamob.data.room.SteamObEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.get
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SteamPriceWidgetProvider : AppWidgetProvider() {
-    private val repository = SteamPriceRepository()
+    private val repository: SteamPriceRepository = get(SteamPriceRepository::class.java)
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
@@ -53,14 +57,14 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     ) {
         coroutineScope.launch {
             val appId = getAppId(context, appWidgetId)
-            val uiState = appId?.let {
-                repository.fetchData(appId)
+            val widgetState = appId?.let {
+                repository.fetchApp(appId)
             }
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
             with(views) {
-                showAlertWhen(uiState == null)
-                showRedBackgroundOnMajorDiscount(uiState?.discountLevel)
-                uiState?.let {
+                showAlertWhen(widgetState == null)
+                showRedBackgroundOnMajorDiscount(widgetState?.discountLevel)
+                widgetState?.let {
                     displayInfo(it)
                 }
                 setupRefreshIntent(context, appWidgetId)
@@ -68,20 +72,31 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             }
             appWidgetManager.updateAppWidget(appWidgetId, views)
 
-            uiState?.let { triggerAlarm(context, appWidgetId, uiState) }
+            widgetState?.let { triggerAlarm(context, appWidgetId, widgetState) }
         }
     }
 
-    private fun triggerAlarm(context: Context, appWidgetId: Int, uiState: UiState) {
+    private fun SteamObEntity.toWidgetState(): WidgetState {
+        return WidgetState(
+            timeUpdated = this.lastUpdate.toString(),
+            name = appName,
+            discount = "$discount% OFF",
+            discountLevel = mapDiscountLevel(discount),
+            initialPrice = formatAud(rrp),
+            price = formatAud(finalPrice)
+        )
+    }
+
+    private fun triggerAlarm(context: Context, appWidgetId: Int, widgetState: WidgetState) {
         val priceThreshold = getPriceThreshold(context, appWidgetId)
-        val finalPrice = extractPrice(uiState.price)
+        val finalPrice = extractPrice(widgetState.price)
         if (finalPrice <= priceThreshold) {
-            val title = "\uD83D\uDD25 [SteamOb] ${uiState.name}: Big Discount Just for You!"
+            val title = "\uD83D\uDD25 [SteamOb] ${widgetState.name}: Big Discount Just for You!"
             val message =
-                "\"The price of ${uiState.name} has dropped to just ${uiState.price}! Don’t miss out on this limited-time offer – grab it before it’s gone! \uD83D\uDCA5\""
+                "\"The price of ${widgetState.name} has dropped to just ${widgetState.price}! Don’t miss out on this limited-time offer – grab it before it’s gone! \uD83D\uDCA5\""
             NotificationLauncher.post(context, title, message)
         }
-        uiState.price
+        widgetState.price
     }
 
     private fun extractPrice(priceString: String): Float {
@@ -130,11 +145,11 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         setOnClickPendingIntent(R.id.refresh_button, pendingIntent)
     }
 
-    private fun RemoteViews.displayInfo(uiState: UiState) {
-        setTextViewText(R.id.time, "on ${uiState.timeUpdated}")
-        setTextViewText(R.id.name, uiState.name)
-        setTextViewText(R.id.discount, uiState.discount)
-        val priceDisplay = "${uiState.price} (${uiState.initialPrice})"
+    private fun RemoteViews.displayInfo(widgetState: WidgetState) {
+        setTextViewText(R.id.time, "on ${widgetState.timeUpdated}")
+        setTextViewText(R.id.name, widgetState.name)
+        setTextViewText(R.id.discount, widgetState.discount)
+        val priceDisplay = "${widgetState.price} (${widgetState.initialPrice})"
         setTextViewText(R.id.price, priceDisplay)
     }
 
@@ -161,6 +176,21 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             setViewVisibility(R.id.alert_icon, View.GONE)
         }
     }
+
+    private fun getCurrentTimeStampString(): String {
+        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+        val currentTime: String = dateFormat.format(Date())
+        return currentTime
+    }
+
+    private fun formatAud(price: Long): String = String.format("A\$ ${price / 100.0f}")
+
+    private fun mapDiscountLevel(discountPercentage: Int): DiscountLevel =
+        when {
+            discountPercentage == 0 -> DiscountLevel.None
+            discountPercentage < 50 -> DiscountLevel.Minor
+            else -> DiscountLevel.Major
+        }
 
     companion object {
         private const val ACTION_REFRESH = "action-refresh"
