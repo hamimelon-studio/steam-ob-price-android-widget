@@ -1,16 +1,20 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
+    kotlin("plugin.serialization") version "1.9.10"
+    id("com.google.devtools.ksp")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.mike.steamob"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mike.steamob"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -50,30 +54,36 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.symbol.processing.api)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation(platform(libs.androidx.compose.bom.v20231001))
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.foundation)
     implementation(libs.androidx.material3)
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.json)
+
+    // network
+    implementation(libs.retrofit.v290)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.gson)
+    implementation(libs.okhttp3.logging.interceptor)
+    implementation(libs.okhttp3.okhttp)
+
+    // For testing (optional)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(platform(libs.androidx.compose.bom.v20231001))
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }
