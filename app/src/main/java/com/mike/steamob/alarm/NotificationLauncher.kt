@@ -17,7 +17,8 @@ object NotificationLauncher {
         msg: String,
         @DrawableRes icon: Int = R.mipmap.ic_launcher,
     ) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
 
         val pendingIntent = PendingIntent.getActivity(
             context, 0, MainActivity.intent(context),
@@ -25,7 +26,7 @@ object NotificationLauncher {
         )
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
+            context.getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_HIGH
         )
 
@@ -48,6 +49,5 @@ object NotificationLauncher {
     }
 
     private const val NOTIFICATION_CHANNEL_ID = "default-channel"
-    private const val NOTIFICATION_CHANNEL_NAME = "Default notifications"
     private const val NOTIFICATION_ID = 1010
 }

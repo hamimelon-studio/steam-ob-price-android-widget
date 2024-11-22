@@ -72,6 +72,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.compose)
+    implementation("androidx.cardview:cardview:1.0.0")
 
     // di
     implementation(libs.koin.android)

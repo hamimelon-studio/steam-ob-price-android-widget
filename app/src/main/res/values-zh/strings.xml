@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Steam折扣哨兵</string>
+    <string name="notification_channel_name">"默认频道"</string>
+    <string name="api_currency">cn</string>
+    <string name="api_lang">schinese</string>
+    <string name="add_widget_error_title">添加小部件失败</string>
+    <string name="add_widget_error_message">您添加的Steam应用ID不存在或者该应用在Steam中国区未上架！</string>
+    <string name="about_app_name">"Steam折扣哨兵"</string>
+    <string name="about_author">开发者</string>
+    <string name="feedback">请点击以反馈意见</string>
+    <string name="report_issue">反馈问题</string>
+    <string name="input_appid">设置桌面小部件</string>
+    <string name="input_enter_appid">Steam应用ID</string>
+    <string name="input_notify_me">请通知我如果价格低于（可选填）</string>
+    <string name="okay">确认</string>
+    <string name="cancel">取消</string>
+    <string name="widget_list_title">您的桌面小部件</string>
+    <string name="widget_list_empty">还没有添加小部件</string>
+    <string name="currency_formater">￥%1$.2f</string>
+    <string name="no_discount">无折扣</string>
+    <string name="discount_off">打折 %1$d%%</string>
+    <string name="time_formater">aHH:mm</string>
+    <string name="last_update_today">更新于%1$s</string>
+    <string name="last_update_yday">昨天</string>
+    <string name="last_update_days_ago">%1$d天前</string>
+    <string name="last_update_weeks_ago">%1$d周前</string>
+    <string name="last_update_mos_ago">%1$d月前</string>
+    <string name="last_update_yrs_ago">%1$d年前</string>
+    <string name="nav_tab_home">首页</string>
+    <string name="nav_tab_about">关于</string>
+    <string name="notification_title">🔥 [Steam折扣哨兵] %1$s：限时大优惠，别错过！</string>
+    <string name="notification_message">%1$s 的价格已经降到仅需 %2$s！抓住这个限时机会，赶紧行动吧，机会不等人！💥</string>
+    <string name="widget_list_empty_subtitle">Pull down to refresh or add a new widget to get started</string>
+</resources>

@@ -1,71 +1,110 @@
 package com.mike.steamob
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.RemoteViews
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.lifecycleScope
 import com.mike.steamob.data.SteamPriceRepository
 import com.mike.steamob.data.room.SteamObEntity
+import com.mike.steamob.ui.addwidget.AddWidgetDialog
+import com.mike.steamob.ui.addwidget.AddWidgetErrorDialog
+import com.mike.steamob.ui.theme.SteamObTheme
 import com.mike.steamob.widget.SteamPriceWidgetProvider
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 
-class AddWidgetInputActivity : AppCompatActivity() {
+class AddWidgetInputActivity : ComponentActivity() {
     private val repository: SteamPriceRepository = get(SteamPriceRepository::class.java)
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appWidgetId = intent.getIntExtra(
             AppWidgetManager.EXTRA_APPWIDGET_ID,
             AppWidgetManager.INVALID_APPWIDGET_ID
         )
-        showAppIdDialog(appWidgetId)
-    }
-
-    private fun showAppIdDialog(appWidgetId: Int) {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-
-        // App ID input field
-        val appIdInput = EditText(this).apply {
-            hint = "Enter App ID"
-        }
-
-        // Price threshold input field
-        val priceThresholdInput = EditText(this).apply {
-            hint = "Enter Price Threshold"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-
-        layout.addView(appIdInput)
-        layout.addView(priceThresholdInput)
-
-        AlertDialog.Builder(this)
-            .setTitle("Enter App ID and Price Threshold")
-            .setView(layout)
-            .setPositiveButton("OK") { _, _ ->
-                val appId = appIdInput.text.toString()
-                val priceThreshold = priceThresholdInput.text.toString().toFloatOrNull()
-                    ?: 0f // Default to 0 if invalid input
-
-                // Save app ID and price threshold or pass them back to the widget
-                save(appWidgetId, appId, priceThreshold)
-                updateWidget(appWidgetId)
-                finish() // Close activity after input
+        enableEdgeToEdge()
+        val entity = runBlocking {
+            withContext(IO) {
+                repository.getSteamObEntity(appWidgetId)
             }
-            .setNegativeButton("Cancel") { _, _ ->
-                finish() // Close activity if canceled
+        }
+
+        setContent {
+            SteamObTheme {
+                Scaffold {
+                    var showInputDialog by remember { mutableStateOf(true) }
+                    var showErrorDialog by remember { mutableStateOf(false) }
+                    var isLoading by remember { mutableStateOf(false) }
+
+                    if (isLoading) {
+                        Dialog(onDismissRequest = {}) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    if (showErrorDialog && !isLoading) {
+                        Dialog(onDismissRequest = {
+                            showErrorDialog = false
+                            finishWithResult(appWidgetId, false)
+                        }) {
+                            AddWidgetErrorDialog {
+                                finishWithResult(appWidgetId, false)
+                                showErrorDialog = false
+                            }
+                        }
+                    }
+
+                    if (showInputDialog && !isLoading) {
+                        AddWidgetDialog(
+                            appId0 = entity?.appId ?: "",
+                            threshold0 = entity?.alarmThreshold?.let { it / 100f } ?: 0f,
+                            onDismiss = { finish() },
+                            onConfirm = { appId, priceThreshold ->
+                                isLoading = true
+                                save(appWidgetId, appId, priceThreshold) { success ->
+                                    isLoading = false
+                                    updateWidget(appWidgetId)
+                                    if (success) {
+                                        finishWithResult(appWidgetId, success)
+                                    } else {
+                                        showInputDialog = false
+                                        showErrorDialog = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent)
+                    )
+                }
             }
-            .show()
+        }
     }
 
     private fun updateWidget(appWidgetId: Int) {
@@ -85,32 +124,35 @@ class AddWidgetInputActivity : AppCompatActivity() {
         SteamPriceWidgetProvider().onUpdate(this, appWidgetManager, intArrayOf(appWidgetId))
     }
 
-    private fun save(appWidgetId: Int, appId: String, priceThreshold: Float) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val entity = SteamObEntity(
-                widgetId = appWidgetId,
-                appId = appId,
-                alarmThreshold = if (priceThreshold == 0f) {
-                    Float.MAX_VALUE
-                } else priceThreshold
-            )
-            repository.fetchApp(entity)?.let {
-                repository.update(it)
+    private fun save(
+        appWidgetId: Int, appId: String, priceThreshold: Float,
+        onComplete: (Boolean) -> Unit
+    ) {
+        lifecycleScope.launch(IO) {
+            var success = false
+            try {
+                val entity = SteamObEntity(
+                    widgetId = appWidgetId,
+                    appId = appId,
+                    alarmThreshold = (priceThreshold * 100).toLong()
+                )
+                val outputEntity = repository.fetchApp(entity)
+                repository.update(outputEntity ?: entity)
+                success = outputEntity != null
+            } finally {
+                withContext(Main) {
+                    onComplete(success)
+                }
             }
         }
     }
 
-    private fun saveAppId(appWidgetId: Int, appId: String) {
-        // Save app ID to SharedPreferences or handle as needed
-        val prefs = getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val key = "appid_$appWidgetId"
-        prefs.edit().putString(key, appId).apply()
-    }
-
-    private fun savePriceThreshold(appWidgetId: Int, priceThreshold: Float) {
-        val sharedPreferences = getSharedPreferences("widget_prefs", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putFloat("threshold_$appWidgetId", priceThreshold)
-        editor.apply()
+    private fun finishWithResult(appWidgetId: Int, success: Boolean) {
+        val result = if (success) RESULT_OK else RESULT_CANCELED
+        val resultIntent = Intent().apply {
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        }
+        setResult(result, resultIntent)
+        finish()
     }
 }

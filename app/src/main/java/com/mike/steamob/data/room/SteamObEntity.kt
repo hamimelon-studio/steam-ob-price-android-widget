@@ -13,5 +13,6 @@ data class SteamObEntity(
     val rrp: Long = 0,
     val finalPrice: Long = 0,
     val discount: Int = 0,
-    val alarmThreshold: Float = Float.MAX_VALUE
+    val logo: String = "",
+    val alarmThreshold: Long = 0
 )

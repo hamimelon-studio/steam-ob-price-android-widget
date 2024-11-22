@@ -17,7 +17,7 @@ val client = OkHttpClient.Builder()
 
 // Set up Retrofit with the OkHttpClient
 val retrofit = Retrofit.Builder()
-    .baseUrl("http://store.steampowered.com/") // Replace with your base URL
+    .baseUrl("https://store.steampowered.com/") // Replace with your base URL
     .client(client)
     .addConverterFactory(GsonConverterFactory.create())
     .build()

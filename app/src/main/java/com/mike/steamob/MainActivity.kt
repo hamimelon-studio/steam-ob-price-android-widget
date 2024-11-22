@@ -7,11 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.mike.steamob.ui.SteamAppNav
+import com.mike.steamob.ui.extension.adaptEdgeToEdge
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        adaptEdgeToEdge(window.decorView)
         setContent {
             SteamAppNav()
         }

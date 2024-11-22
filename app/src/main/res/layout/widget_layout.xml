@@ -1,75 +1,105 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/widget_background"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@drawable/steam_bg"
-    android:paddingHorizontal="8dp"
-    android:paddingTop="4dp">
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:textColor="@color/white"
-        android:textSize="@dimen/widget_text_size" />
-
-    <ImageButton
-        android:id="@+id/refresh_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_menu_rotate" />
-
-    <ImageButton
-        android:id="@+id/config_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/refresh_button"
-        android:layout_alignParentEnd="true"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_menu_manage" />
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/alert_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@id/refresh_button"
-        android:contentDescription="Alert Icon"
-        android:src="@android:drawable/ic_dialog_alert"
-        app:tint="#FFFFFF" />
+        android:id="@+id/widget_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/steam_bg" />
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/time"
-        android:layout_alignParentStart="true"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@color/white"
-        android:textSize="@dimen/widget_text_size" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B3000000"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/discount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/name"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/white"
-        android:textSize="@dimen/widget_text_size" />
+        <!-- Header Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
 
-    <TextView
-        android:id="@+id/price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/discount"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/white"
-        android:textSize="@dimen/widget_text_size" />
-</RelativeLayout>
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/alert_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@android:drawable/ic_dialog_alert" />
+
+            <ImageButton
+                android:id="@+id/refresh_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_rotate" />
+
+            <ImageButton
+                android:id="@+id/config_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_menu_manage" />
+        </LinearLayout>
+
+        <!-- Game Name -->
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingVertical="2dp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Price Info - Fixed Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Discount Tag -->
+            <TextView
+                android:id="@+id/discount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#4D4CAF50"
+                android:padding="3dp"
+                android:textColor="#4CAF50"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="6dp" />
+
+            <!-- Price with ellipsis -->
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="100dp"
+                android:singleLine="false"
+                android:ellipsize="end"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

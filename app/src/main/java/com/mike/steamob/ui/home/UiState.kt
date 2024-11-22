@@ -1,4 +1,4 @@
-package com.mike.steamob.ui
+package com.mike.steamob.ui.home
 
 import com.mike.steamob.data.room.SteamObEntity
 
