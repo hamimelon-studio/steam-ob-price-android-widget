@@ -6,8 +6,12 @@
 
 #### Alarming with red background if discount more than 50% OFF
 
-<img src="https://raw.githubusercontent.com/hongwei-bai/SteamPriceObWidget/main/images/demo_home.jpg" width="360" height="800" />
+<img src="https://raw.githubusercontent.com/hamimelon-studio/steam-ob-price-android-widget/main/images/widget.jpg" width="360" height="800" />
 
-#### Release 0.1 alpha
+<img src="https://raw.githubusercontent.com/hamimelon-studio/steam-ob-price-android-widget/main/images/notification.jpg" width="360" height="800" />
 
-[download apk](https://github.com/hongwei-bai/SteamPriceObWidget/releases/tag/v0.1)
+<img src="https://raw.githubusercontent.com/hamimelon-studio/steam-ob-price-android-widget/main/images/notification_expand.jpg" width="360" height="800" />
+
+<img src="https://raw.githubusercontent.com/hamimelon-studio/steam-ob-price-android-widget/main/images/settings.jpg" width="360" height="800" />
+
+<img src="https://raw.githubusercontent.com/hamimelon-studio/steam-ob-price-android-widget/main/images/home.jpg" width="360" height="800" />
