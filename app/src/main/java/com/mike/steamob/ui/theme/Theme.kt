@@ -5,34 +5,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-
-private val CyberpunkDarkColorScheme = darkColorScheme(
-    primary = NeonPurple,
-    secondary = NeonBlue,
-    tertiary = NeonPink,
-    background = DarkBackground,
-    surface = CyberGray,
-    onPrimary = NeonGreen,
-    onSecondary = BrightAccent,
-    onTertiary = Color.White,
-    onBackground = NeonGreen,
-    onSurface = Color.White
-)
 
 private val CyberpunkLightColorScheme = lightColorScheme(
-    primary = NeonBlue,
-    secondary = NeonPink,
-    tertiary = BrightAccent,
-    background = Color(0xFFF0F0F0),
-    surface = Color.White,
-    onPrimary = NeonPurple,
-    onSecondary = NeonGreen,
-    onTertiary = CyberGray,
-    onBackground = DarkBackground,
-    onSurface = CyberGray
+    primary = GameExtremeDarkBlue,
+    onPrimary = GameWhite,
+    secondary = GameExtremeDarkBlue,
+    onSecondary = GameGlowingWhite,
+    tertiary = GameDarkRed,
+    onTertiary = GameGlowingRed,
+    background = GameWhite,
+    onBackground = GameExtremeDarkBlue,
+    surface = GameWhite,
+    onSurface = GameDarkBlue,
+    primaryContainer = GameDarkBlue, // Game card bg + fab bg
+    onPrimaryContainer = GameWhite,
+    secondaryContainer = GameWhite, // dialog bg
+    tertiaryContainer = GameWhite, // Fab bg
+    surfaceContainer = GameWhite, // nav bottom bar bg
 )
 
+private val CyberpunkDarkColorScheme = darkColorScheme(
+    primary = GameGlowingWhite,
+    onPrimary = GameExtremeDarkBlue,
+    secondary = GameGlowingWhite,
+    onSecondary = GameExtremeDarkBlue,
+    tertiary = GameGlowingRed,
+    onTertiary = GameDarkRed,
+    background = GameExtremeDarkBlue,
+    onBackground = GameWhite,
+    surface = GameExtremeDarkBlue,
+    onSurface = GameWhite,
+    primaryContainer = GameGlowingWhite,
+    onPrimaryContainer = GameExtremeDarkBlue,
+    secondaryContainer = GameDarkBlue,
+    tertiaryContainer = GameGlowingWhite,
+    surfaceContainer = GameExtremeDarkBlue
+)
 
 @Composable
 fun SteamObTheme(

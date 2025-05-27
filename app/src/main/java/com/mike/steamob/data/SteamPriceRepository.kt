@@ -2,6 +2,7 @@ package com.mike.steamob.data
 
 import android.content.Context
 import com.mike.steamob.R
+import com.mike.steamob.data.room.SteamAppState
 import com.mike.steamob.data.room.SteamObDao
 import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.ui.home.UiState
@@ -19,21 +20,27 @@ class SteamPriceRepository(
         if (response != null) {
             if (response.success && response.data != null) {
                 val data = response.data
-                val adjustDiscount = adjustDiscountValue(
-                    data.price_overview.discountPercentage,
-                    data.price_overview.initial,
-                    data.price_overview.final
-                )
+                val state = data.price_overview?.let {
+                    SteamAppState.Normal
+                } ?: SteamAppState.ComingSoon
+                val adjustDiscount = data.price_overview?.let {
+                    adjustDiscountValue(
+                        data.price_overview.discountPercentage,
+                        data.price_overview.initial,
+                        data.price_overview.final
+                    )
+                }
                 return SteamObEntity(
                     widgetId = input.widgetId,
                     appId = input.appId,
                     appName = data.name,
                     lastUpdate = System.currentTimeMillis(),
-                    rrp = data.price_overview.initial,
-                    finalPrice = data.price_overview.final,
-                    discount = adjustDiscount,
+                    rrp = data.price_overview?.initial ?: 0,
+                    finalPrice = data.price_overview?.final ?: 0,
+                    discount = adjustDiscount ?: 0,
                     alarmThreshold = input.alarmThreshold,
-                    logo = data.capsule_imagev5
+                    logo = data.capsule_imagev5,
+                    state = state.displayName
                 )
             }
         }

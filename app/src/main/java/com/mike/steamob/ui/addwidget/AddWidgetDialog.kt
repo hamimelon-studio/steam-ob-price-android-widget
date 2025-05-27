@@ -31,10 +31,12 @@ fun AddWidgetDialog(
     var priceThreshold by remember { mutableStateOf(threshold0.toString()) }
 
     AlertDialog(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
         onDismissRequest = { onDismiss() },
         title = {
             Text(
                 text = LocalContext.current.getString(R.string.input_appid),
+//                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleSmall
             )
         },
@@ -46,6 +48,7 @@ fun AddWidgetDialog(
                     label = {
                         Text(
                             text = LocalContext.current.getString(R.string.input_enter_appid),
+                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
@@ -58,6 +61,7 @@ fun AddWidgetDialog(
                     label = {
                         Text(
                             text = LocalContext.current.getString(R.string.input_notify_me),
+                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },

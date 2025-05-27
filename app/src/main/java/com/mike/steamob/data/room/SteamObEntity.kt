@@ -14,5 +14,6 @@ data class SteamObEntity(
     val finalPrice: Long = 0,
     val discount: Int = 0,
     val logo: String = "",
-    val alarmThreshold: Long = 0
+    val alarmThreshold: Long = 0,
+    val state: String = ""
 )

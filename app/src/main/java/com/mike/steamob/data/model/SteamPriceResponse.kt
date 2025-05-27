@@ -9,7 +9,7 @@ data class SteamPriceData(
     val steam_appid: String,
     val name: String,
     val capsule_imagev5: String,
-    val price_overview: SteamPriceOverview
+    val price_overview: SteamPriceOverview?
 )
 
 data class SteamPriceOverview(

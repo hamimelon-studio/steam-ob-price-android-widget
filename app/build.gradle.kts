@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.1")
 
     // di
     implementation(libs.koin.android)

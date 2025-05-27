@@ -2,30 +2,22 @@ package com.mike.steamob.ui.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.with
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,9 +26,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,15 +49,13 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     PullToRefreshBox(
         isRefreshing = isRefresh,
         onRefresh = {
-            scope.launch {
-                viewModel.forceRefresh()
-            }
+            scope.launch { viewModel.forceRefresh() }
         },
         modifier = Modifier.padding(innerPadding)
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f)
+//            color = MaterialTheme.colorScheme.background
         ) {
             AnimatedContent(
                 targetState = uiState?.list?.isNotEmpty() == true || isRefresh,
@@ -77,7 +66,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                 }, label = ""
             ) { hasContent ->
                 if (!hasContent) {
-                    EmptyScreen()
+                    EmptyScreen(navController)
                 } else {
                     Column(
                         Modifier
@@ -109,7 +98,7 @@ private fun HeaderSection() {
                     letterSpacing = 0.5.sp
                 ),
                 modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.primary
+//                color = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -120,67 +109,34 @@ private fun GamesList(
     navController: NavController,
     games: List<SteamObEntity>
 ) {
+    val viewModel: HomeViewModel = koinViewModel()
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(
             items = games,
             key = { it.appId }
         ) { appInfo ->
-            GameCard(navController, appInfo)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GameCard(
-    navController: NavController,
-    appInfo: SteamObEntity
-) {
-    val cardShape = RoundedCornerShape(4.dp)
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize()
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                shape = cardShape
-            ),
-        shape = cardShape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-        ),
-        onClick = { /* Handle click */ }
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            val primaryColor = MaterialTheme.colorScheme.primary
-
-            // Left border accent
-            Canvas(
-                modifier = Modifier
-                    .width(2.dp)
-                    .fillMaxHeight()
-                    .align(Alignment.CenterStart)
-            ) {
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            primaryColor.copy(alpha = 0.8f),
-                            primaryColor.copy(alpha = 0.2f)
-                        )
-                    )
+            GameCard {
+                AppWidgetRow(
+                    navController = navController,
+                    viewModel = viewModel,
+                    appInfo = appInfo,
+                    modifier = Modifier.padding(start = 4.dp)
                 )
             }
-
-            AppWidgetRow(
-                navController = navController,
-                appInfo = appInfo,
-                modifier = Modifier.padding(start = 4.dp) // Offset for border
-            )
+        }
+        item {
+            GameCard(
+                backgroundColor = Color.Transparent
+            ) {
+                HowToAddWidgetCard {
+                    navController.navigate("add")
+                }
+            }
         }
     }
 }
+

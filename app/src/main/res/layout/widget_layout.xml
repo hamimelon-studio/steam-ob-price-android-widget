@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.9">
+    android:alpha="0.95">
 
     <ImageView
         android:id="@+id/widget_background"
@@ -10,12 +10,12 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/steam_bg" />
+        android:src="@drawable/bg_blue" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#B3000000"
+        android:background="#A3000000"
         android:orientation="vertical"
         android:padding="8dp">
 

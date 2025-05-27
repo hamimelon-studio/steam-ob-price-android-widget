@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.mike.steamob.data.SteamPriceRepository
 import com.mike.steamob.data.room.SteamObDatabase
 import com.mike.steamob.ui.about.AboutViewModel
+import com.mike.steamob.ui.addwidget.AddWidgetViewModel
 import com.mike.steamob.ui.home.HomeViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -22,5 +23,6 @@ val appModule = module {
     single { get<SteamObDatabase>().steamObDao() }
 
     viewModel { HomeViewModel(get(), get()) }
+    viewModel { AddWidgetViewModel(get(), get()) }
     viewModel { AboutViewModel(get()) }
 }

@@ -8,14 +8,15 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import com.mike.steamob.AddWidgetInputActivity
 import com.mike.steamob.R
 import com.mike.steamob.alarm.NotificationLauncher
 import com.mike.steamob.data.SteamPriceRepository
+import com.mike.steamob.data.room.SteamAppState
 import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.ui.DisplayMapper.toDiscountDisplay
 import com.mike.steamob.ui.DisplayMapper.toPriceDisplay
 import com.mike.steamob.ui.DisplayMapper.toWidgetDisplayTime
+import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -90,7 +91,9 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             with(views) {
                 views.showAlertWhen(entityOutput == null)
                 if (entityOutput != null) {
-                    showRedBackgroundOnMajorDiscount(entityOutput.finalPrice < entityOutput.alarmThreshold)
+                    if (!entityOutput.isComingSoon()) {
+                        showRedBackgroundOnMajorDiscount(entityOutput.finalPrice < entityOutput.alarmThreshold)
+                    }
                     val widgetState = entityOutput.toWidgetState(context)
                     displayInfo(widgetState)
                 }
@@ -99,7 +102,9 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             }
             appWidgetManager.updateAppWidget(appWidgetId, views)
             entityOutput?.let {
-                triggerAlarm(context, entityOutput)
+                if (!entityOutput.isComingSoon()) {
+                    triggerAlarm(context, entityOutput)
+                }
             }
         }
     }
@@ -108,8 +113,13 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         return WidgetUiState(
             timeUpdated = toWidgetDisplayTime(context, lastUpdate),
             name = appName,
-            discount = toDiscountDisplay(context, discount),
-            price = toPriceDisplay(context, rrp, finalPrice)
+            discount = if (isComingSoon()) {
+                "Coming soon!"
+            } else {
+                toDiscountDisplay(context, discount)
+            },
+            price = toPriceDisplay(context, rrp, finalPrice),
+            isComingSoon = isComingSoon()
         )
     }
 
@@ -161,20 +171,25 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.time, widgetUiState.timeUpdated)
         setTextViewText(R.id.name, widgetUiState.name)
         setTextViewText(R.id.discount, widgetUiState.discount)
-        val priceDisplay = widgetUiState.price
-        setTextViewText(R.id.price, priceDisplay)
+        if (widgetUiState.isComingSoon) {
+            setViewVisibility(R.id.price, View.GONE)
+        } else {
+            setViewVisibility(R.id.price, View.VISIBLE)
+            val priceDisplay = widgetUiState.price
+            setTextViewText(R.id.price, priceDisplay)
+        }
     }
 
     private fun RemoteViews.showRedBackgroundOnMajorDiscount(alarm: Boolean) {
         if (alarm) {
             setImageViewResource(
                 R.id.widget_background,
-                R.drawable.steam_bg_red
+                R.drawable.bg_red
             )
         } else {
             setImageViewResource(
                 R.id.widget_background,
-                R.drawable.steam_bg
+                R.drawable.bg_blue
             )
         }
     }
@@ -185,6 +200,10 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         } else {
             setViewVisibility(R.id.alert_icon, View.GONE)
         }
+    }
+
+    private fun SteamObEntity.isComingSoon(): Boolean {
+        return this.state == SteamAppState.ComingSoon.displayName
     }
 
     companion object {

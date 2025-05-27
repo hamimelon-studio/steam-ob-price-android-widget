@@ -7,7 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
 import androidx.annotation.DrawableRes
-import com.mike.steamob.MainActivity
+import com.mike.steamob.ui.home.MainActivity
 import com.mike.steamob.R
 
 object NotificationLauncher {

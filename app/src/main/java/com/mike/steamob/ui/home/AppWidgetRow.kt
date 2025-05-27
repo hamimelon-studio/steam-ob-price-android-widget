@@ -29,10 +29,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AppWidgetRow(
     navController: NavController,
+    viewModel: HomeViewModel,
     appInfo: SteamObEntity,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: HomeViewModel = koinViewModel()
+    val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 
     Row(
         modifier = modifier
@@ -55,6 +56,7 @@ fun AppWidgetRow(
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Medium
             ),
+            color = contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -66,9 +68,9 @@ fun AppWidgetRow(
                 navController.navigate("steam/${appInfo.appId}")
             }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_info_outline_24),
+                    painter = painterResource(id = R.drawable.ic_open_in_new_24),
                     contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             IconButton(onClick = {
@@ -77,7 +79,7 @@ fun AppWidgetRow(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_settings_24),
                     contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }

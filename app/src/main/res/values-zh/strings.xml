@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Steam折扣哨兵</string>
+    <string name="app_name">游戏折扣哨兵</string>
     <string name="notification_channel_name">"默认频道"</string>
     <string name="api_currency">cn</string>
     <string name="api_lang">schinese</string>
     <string name="add_widget_error_title">添加小部件失败</string>
     <string name="add_widget_error_message">您添加的Steam应用ID不存在或者该应用在Steam中国区未上架！</string>
-    <string name="about_app_name">"Steam折扣哨兵"</string>
+    <string name="about_app_name">"游戏折扣哨兵App"</string>
     <string name="about_author">开发者</string>
     <string name="feedback">请点击以反馈意见</string>
     <string name="report_issue">反馈问题</string>
@@ -28,7 +28,7 @@
     <string name="last_update_yrs_ago">%1$d年前</string>
     <string name="nav_tab_home">首页</string>
     <string name="nav_tab_about">关于</string>
-    <string name="notification_title">🔥 [Steam折扣哨兵] %1$s：限时大优惠，别错过！</string>
+    <string name="notification_title">🔥 [游戏折扣哨兵] %1$s：限时大优惠，别错过！</string>
     <string name="notification_message">%1$s 的价格已经降到仅需 %2$s！抓住这个限时机会，赶紧行动吧，机会不等人！💥</string>
     <string name="widget_list_empty_subtitle">Pull down to refresh or add a new widget to get started</string>
 </resources>
