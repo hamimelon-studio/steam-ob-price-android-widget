@@ -6,8 +6,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
 import com.mike.steamob.data.SteamPriceRepository
+import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

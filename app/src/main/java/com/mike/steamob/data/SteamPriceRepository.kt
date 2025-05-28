@@ -20,9 +20,11 @@ class SteamPriceRepository(
         if (response != null) {
             if (response.success && response.data != null) {
                 val data = response.data
-                val state = data.price_overview?.let {
-                    SteamAppState.Normal
-                } ?: SteamAppState.ComingSoon
+                val state = when {
+                    data.price_overview != null -> SteamAppState.Normal
+                    data.release_date?.coming_soon == true -> SteamAppState.ComingSoon
+                    else -> SteamAppState.NotAvailable
+                }
                 val adjustDiscount = data.price_overview?.let {
                     adjustDiscountValue(
                         data.price_overview.discountPercentage,

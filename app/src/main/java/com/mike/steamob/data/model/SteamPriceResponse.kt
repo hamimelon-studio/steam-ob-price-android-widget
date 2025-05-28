@@ -9,7 +9,8 @@ data class SteamPriceData(
     val steam_appid: String,
     val name: String,
     val capsule_imagev5: String,
-    val price_overview: SteamPriceOverview?
+    val price_overview: SteamPriceOverview?,
+    val release_date: SteamReleaseDate?
 )
 
 data class SteamPriceOverview(
@@ -18,4 +19,9 @@ data class SteamPriceOverview(
     val final: Long,
     val discountPercentage: Int,
     val final_formatted: String
+)
+
+data class SteamReleaseDate(
+    val coming_soon: Boolean,
+    val date: String
 )

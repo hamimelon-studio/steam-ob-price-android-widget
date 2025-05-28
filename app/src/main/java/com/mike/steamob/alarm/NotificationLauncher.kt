@@ -7,15 +7,15 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
 import androidx.annotation.DrawableRes
-import com.mike.steamob.ui.home.MainActivity
 import com.mike.steamob.R
+import com.mike.steamob.ui.home.MainActivity
 
 object NotificationLauncher {
     fun post(
         context: Context,
         title: String,
         msg: String,
-        @DrawableRes icon: Int = R.mipmap.ic_launcher,
+        @DrawableRes icon: Int = R.drawable.ic_notification_g,
     ) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?

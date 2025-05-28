@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.mike.steamob.R
 import com.mike.steamob.data.SteamPriceRepository
@@ -15,16 +14,27 @@ import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.widget.SteamPriceWidgetProvider
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class AddWidgetViewModel(
     private val appContext: Context,
     private val repository: SteamPriceRepository
 ) : ViewModel() {
-    suspend fun loadEntity(appWidgetId: Int): SteamObEntity? {
-        return repository.getSteamObEntity(appWidgetId)
+    private val _steamObEntity = MutableStateFlow<SteamObEntity?>(null)
+    val steamObEntity: StateFlow<SteamObEntity?> = _steamObEntity
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    fun load(appWidgetId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _steamObEntity.value = repository.getSteamObEntity(appWidgetId)
+            _isLoading.value = false
+        }
     }
 
     fun updateWidget(appWidgetId: Int) {

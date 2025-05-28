@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import com.mike.steamob.R
@@ -32,16 +31,13 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
 
     override fun onEnabled(context: Context?) {
         super.onEnabled(context)
-        Log.d("bbbb", "onEnabled")
     }
 
     override fun onRestored(context: Context?, oldWidgetIds: IntArray?, newWidgetIds: IntArray?) {
         super.onRestored(context, oldWidgetIds, newWidgetIds)
-        Log.d("bbbb", "onRestored")
     }
 
     override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        Log.d("bbbb", "onDeleted")
         coroutineScope.launch(IO) {
             appWidgetIds?.forEach {
                 repository.delete(it)
@@ -63,13 +59,11 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        Log.d("bbbb", "widget onReceive: ${intent.action}")
         if (ACTION_REFRESH == intent.action) {
             val appWidgetId = intent.getIntExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID
             )
-            Log.d("bbbb", "widget appWidgetId: $appWidgetId")
             val appWidgetManager = AppWidgetManager.getInstance(context)
             updateWidget(context, appWidgetId, appWidgetManager)
         }
@@ -83,7 +77,6 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         coroutineScope.launch {
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
             val entity = repository.getSteamObEntity(appWidgetId)
-            Log.d("bbbb", "entity in db: $entity, appWidgetId: $appWidgetId")
             val entityOutput = entity?.let {
                 repository.fetchApp(entity)
             }
@@ -91,7 +84,9 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             with(views) {
                 views.showAlertWhen(entityOutput == null)
                 if (entityOutput != null) {
-                    if (!entityOutput.isComingSoon()) {
+                    if (entityOutput.state == SteamAppState.NotAvailable.displayName) {
+                        showGreyBackgroundWhenUnavailable()
+                    } else {
                         showRedBackgroundOnMajorDiscount(entityOutput.finalPrice < entityOutput.alarmThreshold)
                     }
                     val widgetState = entityOutput.toWidgetState(context)
@@ -102,7 +97,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             }
             appWidgetManager.updateAppWidget(appWidgetId, views)
             entityOutput?.let {
-                if (!entityOutput.isComingSoon()) {
+                if (entityOutput.state == SteamAppState.Normal.displayName) {
                     triggerAlarm(context, entityOutput)
                 }
             }
@@ -113,13 +108,12 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         return WidgetUiState(
             timeUpdated = toWidgetDisplayTime(context, lastUpdate),
             name = appName,
-            discount = if (isComingSoon()) {
-                "Coming soon!"
-            } else {
-                toDiscountDisplay(context, discount)
+            discount = when (state) {
+                SteamAppState.Normal.displayName -> toDiscountDisplay(context, discount)
+                else -> state
             },
             price = toPriceDisplay(context, rrp, finalPrice),
-            isComingSoon = isComingSoon()
+            state = SteamAppState.getStateFromName(state)
         )
     }
 
@@ -171,12 +165,12 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         setTextViewText(R.id.time, widgetUiState.timeUpdated)
         setTextViewText(R.id.name, widgetUiState.name)
         setTextViewText(R.id.discount, widgetUiState.discount)
-        if (widgetUiState.isComingSoon) {
-            setViewVisibility(R.id.price, View.GONE)
-        } else {
+        if (widgetUiState.state == SteamAppState.Normal) {
             setViewVisibility(R.id.price, View.VISIBLE)
             val priceDisplay = widgetUiState.price
             setTextViewText(R.id.price, priceDisplay)
+        } else {
+            setViewVisibility(R.id.price, View.GONE)
         }
     }
 
@@ -194,16 +188,19 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    private fun RemoteViews.showGreyBackgroundWhenUnavailable() {
+        setImageViewResource(
+            R.id.widget_background,
+            R.drawable.bg_grey
+        )
+    }
+
     private fun RemoteViews.showAlertWhen(alertOn: Boolean) {
         if (alertOn) {
             setViewVisibility(R.id.alert_icon, View.VISIBLE)
         } else {
             setViewVisibility(R.id.alert_icon, View.GONE)
         }
-    }
-
-    private fun SteamObEntity.isComingSoon(): Boolean {
-        return this.state == SteamAppState.ComingSoon.displayName
     }
 
     companion object {

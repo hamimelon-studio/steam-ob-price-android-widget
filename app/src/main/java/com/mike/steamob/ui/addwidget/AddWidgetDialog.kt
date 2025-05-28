@@ -36,7 +36,6 @@ fun AddWidgetDialog(
         title = {
             Text(
                 text = LocalContext.current.getString(R.string.input_appid),
-//                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleSmall
             )
         },

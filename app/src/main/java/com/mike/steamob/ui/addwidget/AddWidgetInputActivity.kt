@@ -16,25 +16,32 @@ class AddWidgetInputActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         val appWidgetId = intent.getIntExtra(
             AppWidgetManager.EXTRA_APPWIDGET_ID,
             AppWidgetManager.INVALID_APPWIDGET_ID
         )
-        enableEdgeToEdge()
+        val isNewWidget = intent.action == AppWidgetManager.ACTION_APPWIDGET_CONFIGURE
 
         setContent {
             SteamObTheme {
                 Scaffold {
                     AddWidgetNav(
                         appWidgetId = appWidgetId,
+                        isNewWidget = isNewWidget,
                         forceDark = {
                             forceDark = it
                             SystemUiUtil.applySystemBarStyle(this@AddWidgetInputActivity, forceDark)
+                        },
+                        onFinish = { result, resultIntent ->
+                            setResult(result, resultIntent)
+                            finish()
+                        },
+                        onDismiss = {
+                            finish()
                         }
-                    ) { result, resultIntent ->
-                        setResult(result, resultIntent)
-                        finish()
-                    }
+                    )
                 }
             }
         }
