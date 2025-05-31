@@ -6,6 +6,7 @@ import com.mike.steamob.data.room.SteamAppState
 import com.mike.steamob.data.room.SteamObDao
 import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.ui.home.UiState
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class SteamPriceRepository(
@@ -13,9 +14,9 @@ class SteamPriceRepository(
     private val dao: SteamObDao
 ) {
     suspend fun fetchApp(input: SteamObEntity): SteamObEntity? {
-        val currency = appContext.getString(R.string.api_currency)
+        val countryCode = Locale.getDefault().country.lowercase()
         val language = appContext.getString(R.string.api_lang)
-        val responses = apiService.getAppDetails(input.appId, currency, language)
+        val responses = apiService.getAppDetails(input.appId, countryCode, language)
         val response = responses.entries.firstOrNull()?.value
         if (response != null) {
             if (response.success && response.data != null) {

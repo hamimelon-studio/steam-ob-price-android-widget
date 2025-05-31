@@ -16,6 +16,15 @@ import com.mike.steamob.ui.DisplayMapper.toDiscountDisplay
 import com.mike.steamob.ui.DisplayMapper.toPriceDisplay
 import com.mike.steamob.ui.DisplayMapper.toWidgetDisplayTime
 import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
+import com.mike.steamob.ui.theme.WidgetGreen
+import com.mike.steamob.ui.theme.WidgetGreenHighlight
+import com.mike.steamob.ui.theme.WidgetGrey
+import com.mike.steamob.ui.theme.WidgetGreyHighlight
+import com.mike.steamob.ui.theme.WidgetRed
+import com.mike.steamob.ui.theme.WidgetRedHighlight
+import com.mike.steamob.ui.theme.WidgetYellow
+import com.mike.steamob.ui.theme.WidgetYellowHighlight
+import com.mike.steamob.ui.util.InternationaliseUtil.formatCurrency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -112,15 +121,15 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
                 SteamAppState.Normal.displayName -> toDiscountDisplay(context, discount)
                 else -> state
             },
-            price = toPriceDisplay(context, rrp, finalPrice),
-            state = SteamAppState.getStateFromName(state)
+            price = toPriceDisplay(rrp, finalPrice),
+            state = SteamAppState.getStateFromName(state),
+            isAlarm = state == SteamAppState.Normal.displayName && finalPrice <= alarmThreshold
         )
     }
 
     private fun triggerAlarm(context: Context, entity: SteamObEntity) {
         if (entity.finalPrice <= entity.alarmThreshold) {
-            val priceDisplay =
-                context.getString(R.string.currency_formater, entity.finalPrice / 100f)
+            val priceDisplay = formatCurrency(entity.finalPrice)
             val title = context.getString(R.string.notification_title, entity.appName)
             val message =
                 context.getString(R.string.notification_message, entity.appName, priceDisplay)
@@ -171,6 +180,27 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             setTextViewText(R.id.price, priceDisplay)
         } else {
             setViewVisibility(R.id.price, View.GONE)
+        }
+        when (widgetUiState.state) {
+            SteamAppState.Normal -> {
+                if (widgetUiState.isAlarm) {
+                    setInt(R.id.discount, "setBackgroundColor", WidgetRed)
+                    setTextColor(R.id.discount, WidgetRedHighlight)
+                } else {
+                    setInt(R.id.discount, "setBackgroundColor", WidgetGreen)
+                    setTextColor(R.id.discount, WidgetGreenHighlight)
+                }
+            }
+
+            SteamAppState.ComingSoon -> {
+                setInt(R.id.discount, "setBackgroundColor", WidgetYellow)
+                setTextColor(R.id.discount, WidgetYellowHighlight)
+            }
+
+            SteamAppState.NotAvailable -> {
+                setInt(R.id.discount, "setBackgroundColor", WidgetGrey)
+                setTextColor(R.id.discount, WidgetGreyHighlight)
+            }
         }
     }
 

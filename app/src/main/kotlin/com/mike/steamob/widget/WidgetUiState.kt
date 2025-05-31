@@ -7,5 +7,6 @@ data class WidgetUiState(
     val name: String,
     val discount: String,
     val price: String,
-    val state: SteamAppState
+    val state: SteamAppState,
+    val isAlarm: Boolean
 )

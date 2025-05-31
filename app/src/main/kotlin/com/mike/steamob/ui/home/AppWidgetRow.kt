@@ -16,72 +16,73 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.mike.steamob.R
 import com.mike.steamob.data.room.SteamObEntity
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppWidgetRow(
-    navController: NavController,
-    viewModel: HomeViewModel,
     appInfo: SteamObEntity,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onGearClick: (Int) -> Unit,
+    onOpenLink: (String) -> Unit
 ) {
-    val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    val contentColor = MaterialTheme.colorScheme.primaryContainer
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(12.dp),
+            .height(60.dp)
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AsyncImage(
-            model = appInfo.logo,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(appInfo.logo)
+                .crossfade(true)
+                .build(),
             contentDescription = "Game Logo",
             modifier = Modifier
-                .height(32.dp)
-                .clip(RoundedCornerShape(2.dp))
+                .height(48.dp)
+                .clip(RoundedCornerShape(2.dp)),
+            contentScale = ContentScale.FillHeight              // fills bounds nicely
         )
         Spacer(Modifier.width(12.dp))
         Text(
             text = appInfo.appName,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge.copy(
+            style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),
             color = contentColor,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Row(
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = {
-                navController.navigate("steam/${appInfo.appId}")
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_open_in_new_24),
-                    contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-            IconButton(onClick = {
-                viewModel.launchAddWidgetInputActivity(appInfo.widgetId)
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_settings_24),
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
+        IconButton(onClick = {
+            onOpenLink.invoke(appInfo.appId)
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_open_in_new_24),
+                contentDescription = "Info",
+                tint = contentColor
+            )
+        }
+        IconButton(onClick = {
+            onGearClick.invoke(appInfo.widgetId)
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_settings_24),
+                contentDescription = "Settings",
+                tint = contentColor
+            )
         }
     }
 }

@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Game Sale Alert</string>
     <string name="notification_channel_name">"Default notifications"</string>
-    <string name="api_currency">au</string>
     <string name="api_lang">english</string>
     <string name="add_widget_error_title">Adding Widget Error</string>
     <string name="add_widget_error_message">The Steam app ID you added does not exist or is not available in your region!</string>
@@ -16,7 +15,6 @@
     <string name="cancel">Cancel</string>
     <string name="widget_list_title">Your widgets</string>
     <string name="widget_list_empty">No widgets added.</string>
-    <string name="currency_formater">A$%1$.2f</string>
     <string name="no_discount">No discount</string>
     <string name="discount_off">-%1$d%% OFF</string>
     <string name="time_formater">h:mm a</string>

@@ -2,22 +2,20 @@ package com.mike.steamob.ui
 
 import android.content.Context
 import com.mike.steamob.R
+import com.mike.steamob.ui.util.InternationaliseUtil.formatCurrency
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object DisplayMapper {
-    fun toPriceDisplay(context: Context, rrp: Long, finalPrice: Long): String {
+    fun toPriceDisplay(rrp: Long, finalPrice: Long): String {
         return if (rrp == finalPrice) {
-            formatAud(context, finalPrice)
+            formatCurrency(finalPrice)
         } else {
-            "${formatAud(context, finalPrice)} (${formatAud(context, rrp)})"
+            "${formatCurrency(finalPrice)} (${formatCurrency(rrp)})"
         }
     }
-
-    private fun formatAud(content: Context, price: Long): String =
-        content.getString(R.string.currency_formater, price / 100.0f)
 
     fun toDiscountDisplay(context: Context, discount: Int): String {
         return if (discount == 0) {
@@ -53,6 +51,7 @@ object DisplayMapper {
                 R.string.last_update_weeks_ago,
                 elapsed / oneWeek
             )
+
             elapsed < oneYear -> context.getString(R.string.last_update_mos_ago, elapsed / oneMonth)
             else -> context.getString(R.string.last_update_yrs_ago, elapsed / oneYear)
         }

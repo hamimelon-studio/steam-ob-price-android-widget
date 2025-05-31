@@ -1,6 +1,5 @@
 package com.mike.steamob.ui.home
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
-import androidx.compose.material.icons.outlined.Help
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,7 +36,7 @@ fun HowToAddWidgetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize()
+            .padding(8.dp)
             .drawBehind {
                 val strokeWidth = 4.dp.toPx()
                 val pathEffect = PathEffect.dashPathEffect(floatArrayOf(16f, 16f), 0f)

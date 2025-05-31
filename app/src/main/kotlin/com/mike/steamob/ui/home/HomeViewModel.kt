@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.mike.steamob.data.SteamPriceRepository
 import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class HomeViewModel(
     }
 
     fun forceRefresh() {
-        viewModelScope.launch {
+        viewModelScope.launch(IO) {
             try {
                 isRefresh.value = true
                 uiState.value = repository.getSteamObEntities()

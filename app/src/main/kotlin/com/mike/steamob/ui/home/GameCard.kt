@@ -1,11 +1,9 @@
 package com.mike.steamob.ui.home
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,15 +19,12 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GameCard(
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
-    content: @Composable RowScope.() -> Unit
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
 ) {
     val cardShape = RoundedCornerShape(4.dp)
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize()
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.3f),
@@ -38,8 +33,7 @@ fun GameCard(
         shape = cardShape,
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
-        ),
-        onClick = { /* Handle click */ }
+        )
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             val primaryColor = MaterialTheme.colorScheme.primary
@@ -47,7 +41,7 @@ fun GameCard(
             Canvas(
                 modifier = Modifier
                     .width(2.dp)
-//                    .fillMaxHeight()
+                    .fillMaxHeight()
                     .align(Alignment.CenterStart)
             ) {
                 drawRect(
@@ -59,8 +53,6 @@ fun GameCard(
                     )
                 )
             }
-
-            Row(content = content)
         }
     }
 }

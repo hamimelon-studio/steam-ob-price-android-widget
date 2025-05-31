@@ -16,16 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.mike.steamob.R
 
 @Composable
-fun EmptyScreen(navController: NavController) {
+fun EmptyScreen(onClickHowTo: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -36,12 +34,8 @@ fun EmptyScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            GameCard(
-                backgroundColor = Color.Transparent
-            ) {
-                HowToAddWidgetCard {
-                    navController.navigate("add")
-                }
+            HowToAddWidgetCard {
+                onClickHowTo.invoke()
             }
             Spacer(modifier = Modifier.height(24.dp))
             Icon(
