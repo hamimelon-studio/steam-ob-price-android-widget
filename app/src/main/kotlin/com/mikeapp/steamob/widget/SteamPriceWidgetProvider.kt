@@ -133,7 +133,8 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             val title = context.getString(R.string.notification_title, entity.appName)
             val message =
                 context.getString(R.string.notification_message, entity.appName, priceDisplay)
-            NotificationLauncher.post(context, title, message)
+            val notificationId = entity.widgetId
+            NotificationLauncher.post(context, title, message, notificationId)
         }
     }
 

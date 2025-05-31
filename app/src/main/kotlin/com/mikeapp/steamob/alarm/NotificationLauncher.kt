@@ -15,6 +15,7 @@ object NotificationLauncher {
         context: Context,
         title: String,
         msg: String,
+        notificationId: Int,
         @DrawableRes icon: Int = R.drawable.ic_notification_g,
     ) {
         val notificationManager =
@@ -45,9 +46,8 @@ object NotificationLauncher {
             .setDefaults(Notification.DEFAULT_ALL)
             .setContentIntent(pendingIntent)
             .setSmallIcon(icon).build()
-        notificationManager?.notify(NOTIFICATION_ID, notification)
+        notificationManager?.notify(notificationId, notification)
     }
 
     private const val NOTIFICATION_CHANNEL_ID = "default-channel"
-    private const val NOTIFICATION_ID = 1010
 }
