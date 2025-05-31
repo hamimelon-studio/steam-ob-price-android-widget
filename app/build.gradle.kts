@@ -8,15 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "com.mike.steamob"
+    namespace = "com.mikeapp.steamob"
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mike.steamob"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 10000
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

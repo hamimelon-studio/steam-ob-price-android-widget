@@ -58,7 +58,8 @@ fun AppWidgetRow(
         Spacer(Modifier.width(12.dp))
         Text(
             text = appInfo.appName,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),

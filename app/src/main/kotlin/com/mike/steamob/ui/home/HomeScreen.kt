@@ -1,6 +1,5 @@
 package com.mike.steamob.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -20,6 +20,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.mike.steamob.R
 import kotlinx.coroutines.launch
@@ -32,6 +35,27 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     val isRefresh = viewModel.isRefresh.collectAsState().value
     val uiState = viewModel.uiState.collectAsState().value
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    viewModel.forceRefresh()
+                }
+
+                else -> Unit
+            }
+        }
+
+        // Add the observer
+        val lifecycle = lifecycleOwner.lifecycle
+        lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycle.removeObserver(observer)
+        }
+    }
 
     PullToRefreshBox(
         isRefreshing = isRefresh,
@@ -43,7 +67,9 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
             .padding(innerPadding)
             .padding(horizontal = 8.dp)
     ) {
-        when (uiState?.list?.size ?: 0) {
+        when (uiState?.list?.size) {
+            null -> Unit
+
             0 -> EmptyScreen { navController.navigate("add") }
 
             else -> LazyColumn(
