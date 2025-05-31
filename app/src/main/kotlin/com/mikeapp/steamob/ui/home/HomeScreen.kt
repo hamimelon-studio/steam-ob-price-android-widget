@@ -81,8 +81,8 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                     HeaderSection()
                 }
                 items(
-                    items = uiState?.list ?: emptyList(),
-                    key = { it.appId }
+                    items = uiState.list,
+                    key = { it.widgetId }
                 ) { appInfo ->
                     AppWidgetRow(
                         appInfo = appInfo,
