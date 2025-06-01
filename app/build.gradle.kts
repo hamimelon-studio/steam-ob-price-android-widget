@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mikeapp.steamob"
+    namespace = "com.mike.steamob"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mikeapp.steamob"
+        applicationId = "com.mike.steamob"
         minSdk = 28
         targetSdk = 35
         versionCode = 10001
