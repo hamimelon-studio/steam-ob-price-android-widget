@@ -30,8 +30,7 @@ import kotlinx.coroutines.Job
 import org.koin.java.KoinJavaComponent.get
 
 class SteamPriceWidgetProvider : AppWidgetProvider() {
-    private val viewModel: SteamPriceWidgetProviderUseCase =
-        get(SteamPriceWidgetProviderUseCase::class.java)
+    private val useCase: SteamPriceWidgetProviderUseCase = get(SteamPriceWidgetProviderUseCase::class.java)
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
@@ -45,7 +44,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        viewModel.deleteWidgets(appWidgetIds?.toList() ?: emptyList())
+        useCase.deleteWidgets(appWidgetIds?.toList() ?: emptyList())
         super.onDeleted(context, appWidgetIds)
     }
 
@@ -56,7 +55,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     ) {
         Log.d("Lifecycle", "onUpdate, appWidgetIds: ${appWidgetIds.joinToString(",")}")
         for (appWidgetId in appWidgetIds) {
-            viewModel.saveWidgetIfNewCreated(appWidgetId)
+            useCase.saveWidgetIfNewCreated(appWidgetId)
             updateWidget(context, appWidgetId, appWidgetManager)
         }
     }
@@ -86,7 +85,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int,
         appWidgetManager: AppWidgetManager
     ) {
-        viewModel.asyncFetchEntityByWidgetId(appWidgetId) { entityOutput ->
+        useCase.asyncFetchEntityByWidgetId(appWidgetId) { entityOutput ->
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
             views.showAlertWhen(false)
             with(views) {
@@ -138,7 +137,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     }
 
     private fun RemoteViews.setupConfigIntent(context: Context, appWidgetId: Int) {
-        val intent = viewModel.getSetupConfigIntent(context, appWidgetId)
+        val intent = useCase.getSetupConfigIntent(context, appWidgetId)
         val pendingIntent = PendingIntent.getActivity(
             context,
             appWidgetId,

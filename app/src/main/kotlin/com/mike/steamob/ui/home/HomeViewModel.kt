@@ -118,8 +118,4 @@ class HomeViewModel(
         val currentWidgetIds = appWidgetManager.getAppWidgetIds(provider)
         return currentWidgetIds.toList()
     }
-
-    companion object {
-        private const val APP_WIDGET_HOST_ID = 1024
-    }
 }

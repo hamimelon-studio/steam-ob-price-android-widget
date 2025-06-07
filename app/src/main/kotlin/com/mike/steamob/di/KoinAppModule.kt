@@ -27,7 +27,7 @@ val appModule = module {
     viewModel { HomeViewModel(get(), get()) }
     viewModel { AddWidgetDialogViewModel(get(), get()) }
     viewModel { AboutViewModel(get()) }
-    viewModel { AddWidgetViewModel(get(), get()) }
+    viewModel { AddWidgetViewModel(get()) }
 
     factory { SteamPriceWidgetProviderUseCase(get()) }
 }

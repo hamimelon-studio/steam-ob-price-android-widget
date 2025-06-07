@@ -1,7 +1,6 @@
 package com.mike.steamob.ui.addwidget
 
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AddWidgetViewModel(
-    private val appContext: Context,
     private val repository: SteamPriceRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<AddWidgetUiState>(AddWidgetUiState.Idle)
