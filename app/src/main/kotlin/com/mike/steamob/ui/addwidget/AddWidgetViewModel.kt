@@ -1,87 +1,88 @@
 package com.mike.steamob.ui.addwidget
 
-import android.app.Activity.RESULT_CANCELED
-import android.app.Activity.RESULT_OK
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.content.Intent
-import android.widget.RemoteViews
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mike.steamob.R
 import com.mike.steamob.data.SteamPriceRepository
-import com.mike.steamob.data.room.SteamObEntity
-import com.mike.steamob.widget.SteamPriceWidgetProvider
+import com.mike.steamob.ui.addwidget.CustomisedIntentConstant.ACTION_IN_APP_ADD_WIDGET_ENTRY
+import com.mike.steamob.ui.addwidget.CustomisedIntentConstant.ACTION_IN_APP_TILE_CONFIG_ENTRY
+import com.mike.steamob.ui.addwidget.CustomisedIntentConstant.ACTION_WIDGET_GEAR_CONFIG_ENTRY
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AddWidgetViewModel(
     private val appContext: Context,
     private val repository: SteamPriceRepository
 ) : ViewModel() {
-    private val _steamObEntity = MutableStateFlow<SteamObEntity?>(null)
-    val steamObEntity: StateFlow<SteamObEntity?> = _steamObEntity
+    private val _uiState = MutableStateFlow<AddWidgetUiState>(AddWidgetUiState.Idle)
+    val uiState: StateFlow<AddWidgetUiState> = _uiState
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    fun load(appWidgetId: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _steamObEntity.value = repository.getSteamObEntity(appWidgetId)
-            _isLoading.value = false
-        }
-    }
-
-    fun updateWidget(appWidgetId: Int) {
-        val appWidgetManager = AppWidgetManager.getInstance(appContext)
-        // Create an Intent to update the widget
-        val intent = Intent(appContext, SteamPriceWidgetProvider::class.java)
-        intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-        // Update the widget
-        appWidgetManager.updateAppWidget(
-            appWidgetId,
-            RemoteViews(appContext.packageName, R.layout.widget_layout)
-        )
-
-        // Alternatively, you could call your specific update method:
-        SteamPriceWidgetProvider().onUpdate(appContext, appWidgetManager, intArrayOf(appWidgetId))
-    }
-
-    fun save(
-        appWidgetId: Int, appId: String, priceThreshold: Float,
-        onComplete: (Boolean) -> Unit
-    ) {
+    fun load(appWidgetId: Int, intentAction: String?, onFinish: () -> Unit) {
         viewModelScope.launch(IO) {
-            var success = false
-            try {
-                val entity = SteamObEntity(
-                    widgetId = appWidgetId,
-                    appId = appId,
-                    alarmThreshold = (priceThreshold * 100).toLong()
-                )
-                val outputEntity = repository.fetchApp(entity)
-                repository.update(outputEntity ?: entity)
-                success = outputEntity != null
-            } finally {
-                withContext(Main) {
-                    onComplete(success)
-                }
-            }
-        }
-    }
+            val localEntity = repository.getSteamObEntity(appWidgetId)
+            Log.d("Lifecycle", "localEntity: $localEntity")
 
-    fun finishWithResult(appWidgetId: Int, success: Boolean, onFinish: (Int, Intent) -> Unit) {
-        val result = if (success) RESULT_OK else RESULT_CANCELED
-        val resultIntent = Intent().apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            // Added widget from inapp
+            val isFromHomeScreenEntry = intentAction == AppWidgetManager.ACTION_APPWIDGET_CONFIGURE
+            Log.d("Lifecycle", "VM load appWidgetId: $appWidgetId, intentAction: $intentAction")
+            _uiState.value =
+                when {
+                    isFromHomeScreenEntry -> AddWidgetUiState.InputDialog(
+                        isStartFromIntro = true,
+                        widgetId = localEntity?.widgetId ?: 0,
+                        appId = localEntity?.appId ?: "",
+                        threshold = localEntity?.alarmThreshold ?: 0
+                    )
+
+                    intentAction == ACTION_IN_APP_TILE_CONFIG_ENTRY -> {
+                        AddWidgetUiState.InputDialog(
+                            isStartFromIntro = true,
+                            widgetId = localEntity?.widgetId ?: 0,
+                            appId = localEntity?.appId ?: "",
+                            threshold = localEntity?.alarmThreshold ?: 0
+                        )
+                    }
+
+                    intentAction == ACTION_IN_APP_ADD_WIDGET_ENTRY -> {
+                        val unconfiguredEntities =
+                            repository.getAllEmptySteamObEntitiesByTimeStampDesc()
+                        val lastOne = unconfiguredEntities.list.firstOrNull()
+                        Log.d("Lifecycle", "add from inapp, lastOne: $lastOne")
+                        lastOne?.let {
+                            val delay = System.currentTimeMillis() - lastOne.lastUpdate
+                            Log.d("Lifecycle", "add from inapp, delay: $delay")
+                            if (delay > 2000) {
+                                onFinish.invoke()
+                                AddWidgetUiState.Idle
+                            } else {
+                                AddWidgetUiState.InputDialog(
+                                    isStartFromIntro = true,
+                                    widgetId = lastOne.widgetId,
+                                    appId = "",
+                                    threshold = 0
+                                )
+                            }
+                        } ?: AddWidgetUiState.Idle
+                    }
+
+                    intentAction == ACTION_WIDGET_GEAR_CONFIG_ENTRY -> AddWidgetUiState.InputDialog(
+                        isStartFromIntro = localEntity?.appId?.isEmpty() == true,
+                        widgetId = localEntity?.widgetId ?: 0,
+                        appId = localEntity?.appId ?: "",
+                        threshold = localEntity?.alarmThreshold ?: 0
+                    )
+
+                    else -> AddWidgetUiState.InputDialog(
+                        isStartFromIntro = false,
+                        widgetId = localEntity?.widgetId ?: 0,
+                        appId = localEntity?.appId ?: "",
+                        threshold = localEntity?.alarmThreshold ?: 0
+                    )
+                }
         }
-        onFinish.invoke(result, resultIntent)
     }
 }

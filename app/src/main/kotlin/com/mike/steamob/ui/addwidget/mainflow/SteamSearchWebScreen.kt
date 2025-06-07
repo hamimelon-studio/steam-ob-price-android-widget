@@ -1,4 +1,4 @@
-package com.mike.steamob.ui.commonui
+package com.mike.steamob.ui.addwidget.mainflow
 
 import android.annotation.SuppressLint
 import android.webkit.WebView

@@ -25,6 +25,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.mike.steamob.R
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -36,6 +37,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     val uiState = viewModel.uiState.collectAsState().value
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val applicationContext = LocalContext.current.applicationContext
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -60,7 +62,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     PullToRefreshBox(
         isRefreshing = isRefresh,
         onRefresh = {
-            scope.launch { viewModel.forceRefresh() }
+            scope.launch(IO) { viewModel.forceRefresh() }
         },
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +72,9 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
         when (uiState?.list?.size) {
             null -> Unit
 
-            0 -> EmptyScreen { navController.navigate("add") }
+            0 -> EmptyScreen {
+                viewModel.requestPinWidget(applicationContext)
+            }
 
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -84,20 +88,27 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                     items = uiState.list,
                     key = { it.widgetId }
                 ) { appInfo ->
-                    AppWidgetRow(
-                        appInfo = appInfo,
-                        onGearClick = {
-                            viewModel.launchAddWidgetInputActivity(it)
-                        },
-                        onOpenLink = {
-                            navController.navigate("steam/$it")
+                    if (appInfo.appId.isNotEmpty()) {
+                        AppWidgetRow(
+                            appInfo = appInfo,
+                            onGearClick = {
+                                viewModel.launchAddWidgetInputActivity(it, false)
+                            },
+                            onOpenLink = {
+                                navController.navigate("steam/$it")
+                            }
+                        )
+                    } else {
+                        UnconfiguredSteamWidgetCard(appInfo.widgetId) {
+                            viewModel.launchAddWidgetInputActivity(appInfo.widgetId, true)
                         }
-                    )
+                    }
+
                     HorizontalDivider()
                 }
                 item {
                     HowToAddWidgetCard {
-                        navController.navigate("add")
+                        viewModel.requestPinWidget(applicationContext)
                     }
                 }
             }

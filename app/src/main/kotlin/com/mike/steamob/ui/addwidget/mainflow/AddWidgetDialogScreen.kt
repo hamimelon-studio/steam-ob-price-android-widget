@@ -1,4 +1,4 @@
-package com.mike.steamob.ui.addwidget
+package com.mike.steamob.ui.addwidget.mainflow
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -9,9 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Dialog
@@ -24,45 +21,25 @@ fun AddWidgetDialogScreen(
     onBack: () -> Unit,
     onFinish: (Int, Intent) -> Unit
 ) {
-    val viewModel: AddWidgetViewModel = koinViewModel()
-    val steamObEntity by viewModel.steamObEntity.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
-    var showInputDialog by remember { mutableStateOf(true) }
-    var showErrorDialog by remember { mutableStateOf(false) }
+    val viewModel: AddWidgetDialogViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsState(AddWidgetDialogUiState.Loading)
 
     LaunchedEffect(appWidgetId) {
         viewModel.load(appWidgetId)
     }
 
-    if (isLoading) {
+    if (uiState is AddWidgetDialogUiState.Loading) {
         Dialog(onDismissRequest = {}) {
             CircularProgressIndicator()
         }
     }
 
-    if (showErrorDialog && !isLoading) {
-        Dialog(onDismissRequest = {
-            showErrorDialog = false
-            viewModel.finishWithResult(appWidgetId, false) { result, resultIntent ->
-                onFinish(result, resultIntent)
-            }
-        }) {
-            AddWidgetErrorDialog {
-                viewModel.finishWithResult(appWidgetId, false) { result, resultIntent ->
-                    onFinish(result, resultIntent)
-                }
-                showErrorDialog = false
-            }
-        }
-    }
-
-    if (showInputDialog && !isLoading) {
+    if (uiState is AddWidgetDialogUiState.DialogReady) {
+        val uiStateCast = uiState as AddWidgetDialogUiState.DialogReady
         AddWidgetDialog(
-            appId0 = steamObEntity?.appId ?: steamAppId ?: "",
-            threshold0 = steamObEntity?.alarmThreshold?.let { it / 100f } ?: 0f,
+            appId0 = steamAppId ?: uiStateCast.appId,
+            threshold0 = uiStateCast.threshold / 100f,
             onDismiss = {
-                showInputDialog = false
                 onBack()
             },
             onConfirm = { appId, priceThreshold ->
@@ -73,8 +50,6 @@ fun AddWidgetDialogScreen(
                             onFinish(result, resultIntent)
                         }
                     } else {
-                        showInputDialog = false
-                        showErrorDialog = true
                         onBack()
                     }
                 }

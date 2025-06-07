@@ -5,17 +5,16 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import com.mike.steamob.R
 import com.mike.steamob.alarm.NotificationLauncher
-import com.mike.steamob.data.SteamPriceRepository
 import com.mike.steamob.data.room.SteamAppState
 import com.mike.steamob.data.room.SteamObEntity
 import com.mike.steamob.ui.DisplayMapper.toDiscountDisplay
 import com.mike.steamob.ui.DisplayMapper.toPriceDisplay
 import com.mike.steamob.ui.DisplayMapper.toWidgetDisplayTime
-import com.mike.steamob.ui.addwidget.AddWidgetInputActivity
 import com.mike.steamob.ui.theme.WidgetGreen
 import com.mike.steamob.ui.theme.WidgetGreenHighlight
 import com.mike.steamob.ui.theme.WidgetGrey
@@ -27,13 +26,12 @@ import com.mike.steamob.ui.theme.WidgetYellowHighlight
 import com.mike.steamob.ui.util.InternationaliseUtil.formatCurrency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 class SteamPriceWidgetProvider : AppWidgetProvider() {
-    private val repository: SteamPriceRepository = get(SteamPriceRepository::class.java)
+    private val viewModel: SteamPriceWidgetProviderUseCase =
+        get(SteamPriceWidgetProviderUseCase::class.java)
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
@@ -47,12 +45,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        coroutineScope.launch(IO) {
-            appWidgetIds?.forEach {
-                repository.delete(it)
-            }
-        }
-
+        viewModel.deleteWidgets(appWidgetIds?.toList() ?: emptyList())
         super.onDeleted(context, appWidgetIds)
     }
 
@@ -61,13 +54,23 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        Log.d("Lifecycle", "onUpdate, appWidgetIds: ${appWidgetIds.joinToString(",")}")
         for (appWidgetId in appWidgetIds) {
+            viewModel.saveWidgetIfNewCreated(appWidgetId)
             updateWidget(context, appWidgetId, appWidgetManager)
         }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        Log.d(
+            "Lifecycle", "onReceive, intent.action: ${intent.action}, widgetId:${
+                intent.getIntExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID
+                )
+            }"
+        )
         if (ACTION_REFRESH == intent.action) {
             val appWidgetId = intent.getIntExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -83,12 +86,8 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int,
         appWidgetManager: AppWidgetManager
     ) {
-        coroutineScope.launch {
+        viewModel.asyncFetchEntityByWidgetId(appWidgetId) { entityOutput ->
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            val entity = repository.getSteamObEntity(appWidgetId)
-            val entityOutput = entity?.let {
-                repository.fetchApp(entity)
-            }
             views.showAlertWhen(false)
             with(views) {
                 views.showAlertWhen(entityOutput == null)
@@ -139,7 +138,7 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
     }
 
     private fun RemoteViews.setupConfigIntent(context: Context, appWidgetId: Int) {
-        val intent = getSetupConfigIntent(context, appWidgetId)
+        val intent = viewModel.getSetupConfigIntent(context, appWidgetId)
         val pendingIntent = PendingIntent.getActivity(
             context,
             appWidgetId,
@@ -147,14 +146,6 @@ class SteamPriceWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_IMMUTABLE
         )
         setOnClickPendingIntent(R.id.config_button, pendingIntent)
-    }
-
-    private fun getSetupConfigIntent(context: Context, appWidgetId: Int): Intent {
-        val intent = Intent(context, AddWidgetInputActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        }
-        return intent
     }
 
     private fun RemoteViews.setupRefreshIntent(context: Context, appWidgetId: Int) {

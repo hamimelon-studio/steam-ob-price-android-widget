@@ -24,8 +24,6 @@ import androidx.navigation.compose.rememberNavController
 import com.mike.steamob.R
 import com.mike.steamob.ui.about.AboutScreen
 import com.mike.steamob.ui.about.AuthorGithubWebScreen
-import com.mike.steamob.ui.commonui.AddWidgetIntroScreen
-import com.mike.steamob.ui.commonui.SteamSearchWebScreen
 import com.mike.steamob.ui.theme.SteamObTheme
 
 @Composable
@@ -42,24 +40,6 @@ fun MainNav(forceDark: (Boolean) -> Unit) {
                 composable("home") { _ ->
                     forceDark.invoke(false)
                     HomeScreen(navController, innerPadding)
-                }
-                composable("steam/{appId}") { backStackEntry ->
-                    forceDark.invoke(true)
-                    val url = backStackEntry.arguments?.getString("appId") ?: ""
-                    SteamWebScreen(url, innerPadding)
-                }
-                composable("add") { _ ->
-                    forceDark.invoke(false)
-                    AddWidgetIntroScreen(false) { keyword ->
-                        navController.navigate("steamSearch/$keyword")
-                    }
-                }
-                composable("steamSearch/{keyword}") { backStackEntry ->
-                    forceDark.invoke(true)
-                    val keyword = backStackEntry.arguments?.getString("keyword") ?: ""
-                    SteamSearchWebScreen(keyword, false, innerPadding) {
-                        navController.navigate("home")
-                    }
                 }
                 composable("about") {
                     forceDark.invoke(false)

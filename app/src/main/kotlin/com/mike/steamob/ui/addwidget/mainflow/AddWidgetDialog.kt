@@ -1,4 +1,4 @@
-package com.mike.steamob.ui.addwidget
+package com.mike.steamob.ui.addwidget.mainflow
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

@@ -28,5 +28,16 @@
     <string name="nav_tab_about">关于</string>
     <string name="notification_title">🔥 [游戏折扣哨兵] %1$s：限时大优惠，别错过！</string>
     <string name="notification_message">%1$s 的价格已经降到仅需 %2$s！抓住这个限时机会，赶紧行动吧，机会不等人！💥</string>
-    <string name="widget_list_empty_subtitle">Pull down to refresh or add a new widget to get started</string>
+    <string name="home_screen_list_add_widget">添加新游戏到桌面小部件</string>
+    <string name="home_screen_list_config_widget">配置桌面小部件</string>
+    <string name="home_screen_list_config_widget_button">开始配置</string>
+    <string name="add_widget_title">添加新组件</string>
+    <string name="add_widget_message">请按照如下步骤添加：</string>
+    <string name="add_widget_text_input_hint">请输入关键词搜索游戏&#8230;</string>
+    <string name="add_widget_intro_option1">方法1 - 你可以自己记下页面中的应用ID，然后在输入框中输入。</string>
+    <string name="add_widget_intro_option2">方法2 - 或点击游戏链接进入游戏详情页，本应用会自动获取应用ID。</string>
+    <string name="add_widget_proceed_button">明白 &amp; 搜索游戏</string>
+    <string name="add_widget_skip_text1">我已经知道该游戏的Steam应用ID，请&#160;</string>
+    <string name="add_widget_skip_text_link">跳过</string>
+    <string name="add_widget_skip_text2">&#160;到输入框。</string>
 </resources>

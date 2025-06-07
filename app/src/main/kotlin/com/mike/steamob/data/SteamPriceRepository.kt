@@ -1,7 +1,5 @@
 package com.mike.steamob.data
 
-import android.content.Context
-import com.mike.steamob.R
 import com.mike.steamob.data.room.SteamAppState
 import com.mike.steamob.data.room.SteamObDao
 import com.mike.steamob.data.room.SteamObEntity
@@ -10,13 +8,15 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 class SteamPriceRepository(
-    private val appContext: Context,
     private val dao: SteamObDao
 ) {
     suspend fun fetchApp(input: SteamObEntity): SteamObEntity? {
+        if (input.appId.isEmpty()) {
+            return null
+        }
         val countryCode = Locale.getDefault().country.lowercase()
-        val language = appContext.getString(R.string.api_lang)
-        val responses = apiService.getAppDetails(input.appId, countryCode, language)
+        val languageCode = Locale.getDefault().language.lowercase()
+        val responses = apiService.getAppDetails(input.appId, countryCode, languageCode)
         val response = responses.entries.firstOrNull()?.value
         if (response != null) {
             if (response.success && response.data != null) {
@@ -52,6 +52,17 @@ class SteamPriceRepository(
 
     suspend fun getSteamObEntity(widgetId: Int): SteamObEntity? {
         return dao.getObApps(widgetId)
+    }
+
+    suspend fun getAllEmptySteamObEntitiesByTimeStampDesc(): UiState {
+        return UiState(
+            dao.getAllObApps()
+                .filter {
+                    it.appId.isEmpty()
+                }.sortedByDescending {
+                    it.lastUpdate
+                }
+        )
     }
 
     suspend fun getSteamObEntities(): UiState {

@@ -28,5 +28,16 @@
     <string name="nav_tab_about">About</string>
     <string name="notification_title">🔥 [Game Sale Alert] %1$s: Big Discount Just for You!</string>
     <string name="notification_message">The price of %1$s has dropped to just %2$s! Don’t miss out on this limited-time offer – grab it before it’s gone! 💥</string>
-    <string name="widget_list_empty_subtitle">Pull down to refresh or add a new widget to get started</string>
+    <string name="home_screen_list_add_widget">Add New Widget</string>
+    <string name="home_screen_list_config_widget">Configure Steam Widgets</string>
+    <string name="home_screen_list_config_widget_button">Configure Now</string>
+    <string name="add_widget_title">How to Add New Widget?</string>
+    <string name="add_widget_message">Follow the steps below to search and proceed.</string>
+    <string name="add_widget_text_input_hint">Search game name keyword</string>
+    <string name="add_widget_intro_option1">Option 1 - You can either grab this number and fill by yourself</string>
+    <string name="add_widget_intro_option2">Option 2 - Or click into the tile and auto fill the app id.</string>
+    <string name="add_widget_proceed_button">Understand &amp; Proceed</string>
+    <string name="add_widget_skip_text1">I know steam app id, please&#160;</string>
+    <string name="add_widget_skip_text_link">skip</string>
+    <string name="add_widget_skip_text2">&#160;this intro.</string>
 </resources>

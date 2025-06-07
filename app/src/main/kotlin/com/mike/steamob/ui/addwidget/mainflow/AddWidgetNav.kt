@@ -1,4 +1,4 @@
-package com.mike.steamob.ui.addwidget
+package com.mike.steamob.ui.addwidget.mainflow
 
 import android.content.Intent
 import androidx.compose.material3.Scaffold
@@ -7,14 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.mike.steamob.ui.commonui.AddWidgetIntroScreen
-import com.mike.steamob.ui.commonui.SteamSearchWebScreen
 import com.mike.steamob.ui.theme.SteamObTheme
 
 @Composable
 fun AddWidgetNav(
     appWidgetId: Int,
-    isNewWidget: Boolean,
+    isNewEntry: Boolean,
     forceDark: (Boolean) -> Unit,
     onFinish: (Int, Intent) -> Unit,
     onDismiss: () -> Unit
@@ -25,13 +23,18 @@ fun AddWidgetNav(
         Scaffold { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (isNewWidget) "add" else "dialog"
+                startDestination = if (isNewEntry) "add" else "dialog"
             ) {
                 composable("add") { _ ->
                     forceDark.invoke(false)
-                    AddWidgetIntroScreen(true) { keyword ->
-                        navController.navigate("steamSearch/$keyword")
-                    }
+                    AddWidgetIntroScreen(
+                        onProceed = { keyword ->
+                            navController.navigate("steamSearch/$keyword")
+                        },
+                        onSkip = {
+                            navController.navigate("dialog")
+                        }
+                    )
                 }
                 composable("steamSearch/{keyword}") { backStackEntry ->
                     forceDark.invoke(true)

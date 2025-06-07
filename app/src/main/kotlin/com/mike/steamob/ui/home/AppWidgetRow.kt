@@ -1,5 +1,7 @@
 package com.mike.steamob.ui.home
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.mike.steamob.R
 import com.mike.steamob.data.room.SteamObEntity
@@ -34,7 +37,14 @@ fun AppWidgetRow(
     onGearClick: (Int) -> Unit,
     onOpenLink: (String) -> Unit
 ) {
+    Log.d("HomeScreen", "appInfo: $appInfo")
     val contentColor = MaterialTheme.colorScheme.primaryContainer
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(appInfo.logo)
+            .crossfade(true)
+            .build()
+    )
 
     Row(
         modifier = modifier
@@ -44,17 +54,23 @@ fun AppWidgetRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(appInfo.logo)
-                .crossfade(true)
-                .build(),
+        if (painter.state is AsyncImagePainter.State.Loading) {
+            ShimmerEffect(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(4.dp))
+            )
+        }
+        Image(
+            painter = painter,
             contentDescription = "Game Logo",
             modifier = Modifier
                 .height(48.dp)
                 .clip(RoundedCornerShape(2.dp)),
-            contentScale = ContentScale.FillHeight              // fills bounds nicely
+            contentScale = ContentScale.FillHeight
         )
+
         Spacer(Modifier.width(12.dp))
         Text(
             text = appInfo.appName,
