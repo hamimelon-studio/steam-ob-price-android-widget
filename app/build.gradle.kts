@@ -8,15 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "com.mike.steamob"
+    namespace = "com.mike.steamob.release"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mike.steamob"
+        applicationId = "com.mike.steamob.release"
         minSdk = 28
         targetSdk = 35
-        versionCode = 10002
-        versionName = "1.0.2"
+        versionCode = 10003
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -30,7 +30,6 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
-            applicationIdSuffix = ".release"
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
